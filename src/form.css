@@ -1,0 +1,42 @@
+
+
+h1 {
+    text-align: center;
+    color: rgb(37, 12, 3);
+  
+  }
+  body {
+      /* background-image: url(Grasslands.jpg); */
+    background-repeat: no-repeat;
+    background-size: cover;
+    /* color: #ffffff; */
+    
+   }
+  
+  input {
+    font-size: 15px;
+    color: rgb(74, 199, 36);
+    font-weight: bold;
+    padding: 5px;
+  }
+  #SmallBusiness {
+    align-items: center;
+  }
+  label {
+    display: inline-table;
+    width: 150px;
+  }
+  .new {
+    display: inline;
+    justify-content: space-around;
+  }
+  th,td { 
+    border-collapse: collapse;
+   border: 3px solid rgb(240, 125, 18);
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+  }  
+  
+  
