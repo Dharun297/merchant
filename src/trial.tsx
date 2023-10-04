@@ -3,145 +3,203 @@ import React, { useState } from "react";
 const MerchantForm: React.FC = () => {
   const [name, setName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
-  const [paymentMethod, setPaymentMethod] = useState<string>("credit-card");
-  const [shippingOptions, setShippingOptions] = useState<string[]>([]);
+  const [phone, setPhone] = useState<string>("");
+  const [category, setCategory] = useState<string>("");
+  const [paymentOption, setPaymentOption] = useState<string>("Internet Banking");
+  const [criticalAccount, setCriticalAccount] = useState<string[]>([]);
   const [merchantData, setMerchantData] = useState<any[]>([]);
+  const [selectedPaymentOption, setSelectedPaymentOption] = useState<string>("All");
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
+  const calculateCommission = () => {
+    let calculatedCommission = 0;
 
-    if (type === "radio" && checked) {
-      setPaymentMethod(value);
-    } else if (type === "checkbox") {
-      if (checked) {
-        setShippingOptions([...shippingOptions, value]);
-      } else {
-        setShippingOptions(shippingOptions.filter((so) => so !== value));
-      }
+    if (paymentOption === "Internet Banking") {
+      calculatedCommission = 0.02;
+    } else if (paymentOption === "Cash On Delivery") {
+      calculatedCommission = 0.05; 
+    } else if (paymentOption === "UPI") {
+      calculatedCommission = 0.03;
+    }
+
+    return calculatedCommission;
+  };
+
+  const handleCategoryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCategory(e.target.value);
+  };
+
+  const handlePaymentOptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPaymentOption(e.target.value);
+  };
+
+  const handleCriticalAccountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (criticalAccount.includes(value)) {
+      setCriticalAccount(criticalAccount.filter((item) => item !== value));
     } else {
-      // For text inputs like name and email
-      if (name === "name") {
-        setName(value);
-      } else if (name === "email") {
-        setEmail(value);
-      }
+      setCriticalAccount([...criticalAccount, value]);
     }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    const calculatedCommission = calculateCommission();
+
     const newMerchant = {
       name,
       email,
-      paymentMethod,
-      shippingOptions,
+      phone,
+      category,
+      paymentOption,
+      criticalAccount,
+      commission: calculatedCommission,
     };
-    setMerchantData([...merchantData, newMerchant]);
-    clearForm();
-  };
 
-  const clearForm = () => {
+    setMerchantData([...merchantData, newMerchant]);
+
+    // Clear form fields
     setName("");
     setEmail("");
-    setPaymentMethod("credit-card");
-    setShippingOptions([]);
+    setPhone("");
+    setCategory("");
+    setPaymentOption("Internet Banking");
+    setCriticalAccount([]);
   };
 
+  const filterMerchantData = () => {
+    let filteredData =  [...merchantData];
+
+    if (selectedPaymentOption !== "All") {
+      filteredData = filteredData.filter(
+        (merchant) => merchant.paymentOption === selectedPaymentOption
+      );
+    }
+
+    return filteredData;
+  };
+  
   return (
     <div>
       <form onSubmit={handleSubmit}>
+        <label>Name</label>
+        <input
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+        />
+        <br />
+
+        <label>Email</label>
+        <input
+          type="text"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <br />
+
+        <label>Phone</label>
+        <input
+          type="tel"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+        />
+        <br />
+
+        <label>Category</label>
+        <input
+          type="text"
+          value={category}
+          onChange={handleCategoryChange}
+        />
+        <br />
+
+        <label>Payment Options</label>
         <div>
-          <label htmlFor="name">Name:</label>
           <input
-            type="text"
-            id="name"
-            name="name"
-            value={name}
-            onChange={handleChange}
-            required
+            type="radio"
+            id="internetBanking"
+            name="paymentOption"
+            value="Internet Banking"
+            checked={paymentOption === "Internet Banking"}
+            onChange={handlePaymentOptionChange}
           />
+          <label htmlFor="internetBanking">Internet Banking</label>
         </div>
         <div>
-          <label htmlFor="email">Email:</label>
           <input
-            type="text"
-            id="email"
-            name="email"
-            value={email}
-            onChange={handleChange}
+            type="radio"
+            id="cashOnDelivery"
+            name="paymentOption"
+            value="Cash On Delivery"
+            checked={paymentOption === "Cash On Delivery"}
+            onChange={handlePaymentOptionChange}
           />
+          <label htmlFor="cashOnDelivery">Cash On Delivery</label>
         </div>
         <div>
-          <label>Payment Method:</label>
           <input
             type="radio"
-            id="card"
-            name="payment"
-            value="card"
-            checked={paymentMethod === "card"}
-            onChange={handleChange}
-          />{" "}
-          Card
+            id="upi"
+            name="paymentOption"
+            value="UPI"
+            checked={paymentOption === "UPI"}
+            onChange={handlePaymentOptionChange}
+          />
+          <label htmlFor="upi">UPI</label>
+        </div>
+        <br />
+
+        <label>Critical Account</label>
+        <div>
           <input
-            type="radio"
-            id="cash"
-            name="payment"
-            value="cash"
-            checked={paymentMethod === "cash"}
-            onChange={handleChange}
-          />{" "}
-          Cash
-          <input
-            type="radio"
-            id="UPI"
-            name="payment"
-            value="upi"
-            checked={paymentMethod === "upi"}
-            onChange={handleChange}
-          />{" "}
-          Upi
+            type="checkbox"
+            id="account1"
+            name="criticalAccount"
+            value="Account 1"
+            checked={criticalAccount.includes("Account 1")}
+            onChange={handleCriticalAccountChange}
+          />
+          <label htmlFor="account1">Account 1</label>
         </div>
         <div>
-          <label>Shipping Options:</label>
           <input
             type="checkbox"
-            id="boat"
-            name="shipping"
-            value="boat"
-            checked={shippingOptions.includes("boat")}
-            onChange={handleChange}
-          />{" "}
-          Boat
-          <input
-            type="checkbox"
-            id="casino"
-            name="shipping"
-            value="casino"
-            checked={shippingOptions.includes("casino")}
-            onChange={handleChange}
-          />{" "}
-          Casino
-          <input
-            type="checkbox"
-            id="cargo"
-            name="shipping"
-            value="cargo"
-            checked={shippingOptions.includes("cargo")}
-            onChange={handleChange}
-          />{" "}
-          Cargo
-          <input
-            type="checkbox"
-            id="periyakappal"
-            name="shipping"
-            value="periyakappal"
-            checked={shippingOptions.includes("periyakappal")}
-            onChange={handleChange}
-          />{" "}
-          Periyakappal
+            id="account2"
+            name="criticalAccount"
+            value="Account 2"
+            checked={criticalAccount.includes("Account 2")}
+            onChange={handleCriticalAccountChange}
+          />
+          <label htmlFor="account2">Account 2</label>
         </div>
+        <div>
+          <input
+            type="checkbox"
+            id="account3"
+            name="criticalAccount"
+            value="Account 3"
+            checked={criticalAccount.includes("Account 3")}
+            onChange={handleCriticalAccountChange}
+          />
+          <label htmlFor="account3">Account 3</label>
+        </div>
+        <br />
+
         <button type="submit">Submit</button>
       </form>
+
+      <h2>Filter Payment Options</h2>
+      <select
+        value={selectedPaymentOption}
+        onChange={(e) => setSelectedPaymentOption(e.target.value)}
+      >
+        <option value="All">All</option>
+        <option value="Internet Banking">Internet Banking</option>
+        <option value="Cash On Delivery">Cash On Delivery</option>
+        <option value="UPI">UPI</option>
+      </select>
 
       <h2>Merchant Data</h2>
       <table>
@@ -149,17 +207,24 @@ const MerchantForm: React.FC = () => {
           <tr>
             <th>Name</th>
             <th>Email</th>
-            <th>Payment Method</th>
-            <th>Shipping Options</th>
+            <th>Phone</th>
+            <th>Category</th>
+            <th>Payment Option</th>
+            <th>Critical Account</th>
           </tr>
         </thead>
         <tbody>
-          {merchantData.map((merchant, index) => (
+          {filterMerchantData().map((merchant, index) => (
             <tr key={index}>
               <td>{merchant.name}</td>
               <td>{merchant.email}</td>
-              <td>{merchant.paymentMethod}</td>
-              <td>{merchant.shippingOptions.join(", ")}</td>
+              <td>{merchant.phone}</td>
+              <td>{merchant.category}</td>
+              <td>{merchant.paymentOption}</td>
+              <td>{merchant.criticalAccount.join(", ")}</td>
+              <td>
+      
+      </td>
             </tr>
           ))}
         </tbody>
